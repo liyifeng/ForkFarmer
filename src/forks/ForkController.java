@@ -146,6 +146,21 @@ public class ForkController {
 		});
 		
 		POPUP_MENU.add(ACTION_SUBMENU);
+		ACTION_SUBMENU.add(new SwingEX.JMI("从Chia导入助记词", Ico.PLUS, () -> new Thread(() -> {
+			List<Fork> selectedCoins = ForkView.getSelected();
+			boolean showResult = selectedCoins.size() == 1;
+			for (Fork fork : selectedCoins) {
+				AncillaryFunction.importKeysFromChia(fork,showResult);
+			}
+		})));
+		ACTION_SUBMENU.add(new SwingEX.JMI("从Chia拷贝农田目录", Ico.PLUS, new Thread(() -> {
+			List<Fork> selectedCoins = ForkView.getSelected();
+			boolean showResult = selectedCoins.size() == 1;
+			for (Fork fork : selectedCoins) {
+				AncillaryFunction.mountChiaPlotDir2Current(fork,showResult);
+			}
+		})));
+
 		ACTION_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.actionStart, 		Ico.START, 	() -> new Thread(() -> ForkView.getSelected().forEach(Fork::start)).start()));
 		ACTION_SUBMENU.add(STAGGER_JMI);
 		ACTION_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.actionStop,			Ico.STOP,  	() -> new Thread(() -> ForkView.getSelected().forEach(Fork::stop)).start()));
@@ -163,15 +178,21 @@ public class ForkController {
 		POPUP_MENU.add(WALLET_SUBMENU);
 	
 		POPUP_MENU.add(EXPLORE_SUBMENU);
-			EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.viewLog, 	Ico.CLIPBOARD,  		() -> new ForkLogViewer(ForkView.getSelected())));
-			EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openConfig, 	Ico.CLIPBOARD,  		() -> ForkView.getSelected().forEach(f -> Util.openFile(f.configPath))));
-			if (Util.isHostWin()) {
-				EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openCmd, 		Ico.CLI,  			() -> ForkController.openShell(SHELL.CMD)));
-				EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openPowershell,	Ico.POWERSHHELL,  	() -> ForkController.openShell(SHELL.POWERSHELL)));
-			} else {
-				EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openTerminal, 		Ico.TERMINAL,  		() -> ForkController.openShell(SHELL.TERMINAL)));
+		EXPLORE_SUBMENU.add(new SwingEX.JMI("查看农田目录", AncillaryFunction.SHOW_PLOT_DIR, () -> {
+			List<Fork> selectedCoins = ForkView.getSelected();
+			if (selectedCoins.size() > 0) {
+				AncillaryFunction.showPlotDirs(selectedCoins.get(0));
 			}
-		
+		}));
+		EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.viewLog, 	Ico.CLIPBOARD,  		() -> new ForkLogViewer(ForkView.getSelected())));
+		EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openConfig, 	Ico.CLIPBOARD,  		() -> ForkView.getSelected().forEach(f -> Util.openFile(f.configPath))));
+		if (Util.isHostWin()) {
+			EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openCmd, 		Ico.CLI,  			() -> ForkController.openShell(SHELL.CMD)));
+			EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openPowershell,	Ico.POWERSHHELL,  	() -> ForkController.openShell(SHELL.POWERSHELL)));
+		} else {
+			EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openTerminal, 		Ico.TERMINAL,  		() -> ForkController.openShell(SHELL.TERMINAL)));
+		}
+
 		POPUP_MENU.add(COPY_SUBMENU);
 			COPY_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.copyAddress, 	Ico.CLIPBOARD,  ForkController::copyAddress));
 			COPY_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.copyCSV, 		Ico.CLIPBOARD,  ForkController::copyCSV));
@@ -202,11 +223,12 @@ public class ForkController {
 		POPUP_MENU.addSeparator();
 		POPUP_MENU.add(new SwingEX.JMI(I18n.ForkController.debug,			Ico.BUG,		() -> ForkView.getSelected().forEach(Fork::showLastException)));
 		POPUP_MENU.add(new SwingEX.JMI(I18n.ForkController.ffLogs,		Ico.CLIPBOARD,	() -> ForkFarmer.showFrame(I18n.ForkController.ffLogsTitle, null, ForkFarmer.LOG.newFrameView())));
-
+		POPUP_MENU.add(new SwingEX.JMI("功能说明", AncillaryFunction.HELP, () -> AncillaryFunction.jump2HelpPage()));
 		
 		return POPUP_MENU;
 	}
-	
+
+
 	static private void multiWallet(List<Fork> sel, int i) {
 		sel.forEach(f -> {
 			if (i < f.walletList.size()) {
