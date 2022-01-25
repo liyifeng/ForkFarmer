@@ -208,7 +208,7 @@ public class I18n {
         public static final String dowloadColName = I18n.get("PeerView.tableHeader.dowloadColName");
         public static final String nodeIDColName = I18n.get("PeerView.tableHeader.nodeIDColName");
         public static final String addPeerBtnTipText = I18n.get("PeerView.addPeerBtnTipText");
-        
+
     }
 
     public static class LogModel {
@@ -345,7 +345,10 @@ public class I18n {
         public static final String addColdWalletTitle = I18n.get("ForkController.menu.wallet.addColdWallet.title");
         public static final String addCodeWalletLabel = I18n.get("ForkController.menu.wallet.addColdWallet.input.label");
         public static final String javaOldTipTitle = I18n.get("ForkController.javaOldTipTitle");
-
+        public static final String showPlotDirs = I18n.get("ForkController.menu.explore.showPlotDirs");
+        public static final String showPlotDirsMsgTitle=I18n.get("ForkController.explore.showPlotDirsMsgTitle");
+        public static final String plotDirNotExistsTip =I18n.get("ForkController.explore.plotDirNotExistsTip");
+        public static final String showPlotDirsMsgContent=I18n.get("ForkController.explore.showPlotDirsMsgContent");
         public static final String javaOldTipContent(int jversion) {
             return I18n.getWithVariable("ForkController.javaOldTipContent", "" + jversion);
         }

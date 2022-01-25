@@ -42,7 +42,7 @@ public final class Ico {
 	public static final ImageIcon ATB_Y		= loadIcon("icons/atb_yellow.png",16);
 	public static final ImageIcon DOWNLOAD	= loadIcon("icons/download.png");
 	public static final ImageIcon TARGET	= loadIcon("icons/target.png");
-	
+
 	public static final ImageIcon POSAT		= loadIcon("icons/posat.png",16);
 	public static final ImageIcon EDIT_START = loadIcon("icons/edit_start.png",16);
 	public static final ImageIcon POWER 	= loadIcon("icons/power.png");
@@ -51,35 +51,36 @@ public final class Ico {
 	public static final ImageIcon TOOLS 	= loadIcon("icons/tools.png");
 	public static final ImageIcon PEOPLE 	= loadIcon("icons/people.png");
 	public static final ImageIcon SNOW		= loadIcon("icons/snow.png",16);
-	
+
 	public static final ImageIcon ROULETTE 	= loadIcon("icons/roulette.png");
-	
+
 	public static final ImageIcon CLI			= loadIcon("icons/cmd.png");
 	public static final ImageIcon POWERSHHELL	= loadIcon("icons/powershell.png");
 	public static final ImageIcon TERMINAL	= loadIcon("icons/bash.png",16);
-	
+
 	public static final ImageIcon GITHUB	= loadIcon("icons/github.png",16);
 	public static final ImageIcon XCHCALC	= loadIcon("icons/xchcalc.png");
 	public static final ImageIcon HOME		= loadIcon("icons/home.png",16);
 	public static final ImageIcon DISCORD	= loadIcon("icons/discord.png",16);
 	public static final ImageIcon TWITTER	= loadIcon("icons/twitter.png");
 	public static final ImageIcon FFLOGO	= loadIcon("icons/fflogo.png",16);
-	
+
 	public static final ImageIcon TROPHY	= loadIcon("icons/trophy.png",14);
 	public static final ImageIcon TROPHY_GR	= loadIcon("icons/trophy_g.png",14);
-	
+
 	public static final ImageIcon EXPAND	= loadIcon("icons/expand.png",16);
 	public static final ImageIcon KEY		= loadIcon("icons/key.png",16);
 	public static final ImageIcon COPY_DIR	= loadIcon("icons/folder_new.png",16);
-
+	public static final ImageIcon SHOW_PLOT_DIR = loadIcon("icons/folder_opened.png");
 	//circle icons
 	public static final ImageIcon GREEN 	= Ico.loadIcon("icons/circles/green.png");
 	public static final ImageIcon RED 		= Ico.loadIcon("icons/circles/red.png");
 	public static final ImageIcon YELLOW	= Ico.loadIcon("icons/circles/yellow.png");
 	public static final ImageIcon GRAY		= Ico.loadIcon("icons/circles/gray.png");
-	
+	public static final ImageIcon HELP		= Ico.loadIcon("icons/question_16x16.png");
+
 	public static final String FORK_PATH = "icons/forks/";
-		
+
 	public static ImageIcon getDisabled(ImageIcon i) {
 		final int w = i.getIconWidth();
 		final int h = i.getIconHeight();
@@ -90,17 +91,17 @@ public final class Ico {
 		Graphics2D            g2d = image.createGraphics();
 		i.paintIcon( null,  g2d,  0, 0);
 		Image gray = GrayFilter.createDisabledImage(image);
-		
+
 		return new ImageIcon(gray);
 	}
-	
+
 	public static ImageIcon loadIcon(final String path, int size) {
 		ImageIcon i = loadIcon(path);
 		Image img = i.getImage();
 		Image newimg = img.getScaledInstance(size, size,  java.awt.Image.SCALE_SMOOTH);
 		return new ImageIcon(newimg);
 	}
-	
+
 	public static ImageIcon loadIcon(final String path)
 	{
 		try {
@@ -109,7 +110,7 @@ public final class Ico {
 			throw new RuntimeException("Check your resources for missing icon: " + path);
 		}
 	}
-	
+
 	public static URL getResource(final String path) {
 		return Ico.class.getClassLoader().getResource(path);
 	}

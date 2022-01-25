@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class ForkController {
 
 	public static JPopupMenu getPopupMenu() {
 		JPopupMenu POPUP_MENU = new JPopupMenu();
-		
+
 		final JMenuItem STAGGER_JMI = new SwingEX.JMI(I18n.ForkController.stagger, 	Ico.START,	ForkController::staggerStartDialog);
 		final JMenu ACTION_SUBMENU = new SwingEX.JMIco(I18n.ForkController.action, Ico.ACTION);
 		final JMenu WALLET_SUBMENU = new SwingEX.JMIco(I18n.ForkController.wallet, Ico.WALLET);
@@ -65,10 +66,10 @@ public class ForkController {
 
 		POPUP_MENU.addPopupMenuListener(new PopupMenuListener() {
 			@Override public void popupMenuCanceled(PopupMenuEvent pme) {
-				
+
 			};
 			@Override public void popupMenuWillBecomeInvisible(PopupMenuEvent pme) {
-				
+
 			}
 			@Override public void popupMenuWillBecomeVisible(PopupMenuEvent pme) {
 				List<Fork> sel = ForkView.getSelected();
@@ -77,29 +78,29 @@ public class ForkController {
 				WALLET_SUBMENU.removeAll();
 				while (COMMUNITY_SUBMENU.getItemCount() > 6)
             		COMMUNITY_SUBMENU.remove(6);
-            	
+
 				if (sel.size() < 2) {
 					STAGGER_JMI.setEnabled(false);
 				} else {
 					//WALLET_SUBMENU.setEnabled(false);
 					STAGGER_JMI.setEnabled(true);
 				}
-				
+
 				if (1 == sel.size()) {
 					Fork f = sel.get(0);
 					populateMenu(f);
 				} else if (sel.size() > 1) {
 					int maxIdx = sel.stream().mapToInt(f -> f.walletList.size()).max().getAsInt();
-					
+
 					for (int i = 0; i < maxIdx; i ++) {
 						final int z = i;
 						WALLET_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.multiWalletIndex + i, Ico.WALLET, () -> new Thread(() -> ForkController.multiWallet(sel,z)).start()));
 					}
 				}
 			}
-						
+
 			private void populateMenu(Fork f) {
-            	
+
             	ForkData fd = ForkData.MAP.get(f.symbol);
             	if (null != fd) {
 	            	if (null != fd.websiteURL)
@@ -113,7 +114,7 @@ public class ForkController {
 	            	if (null != fd.calculatorURL)
 	            		COMMUNITY_SUBMENU.add(new SwingEX.JMI(f.name + I18n.ForkController.calculator,	Ico.XCHCALC, () -> Util.openLink(fd.calculatorURL)));
             	}
-            	
+
             	for (int i = 0; i < f.walletList.size(); i++) {
             		WALLET_SUBMENU.setEnabled(true);
             		Wallet w = f.walletList.get(i);
@@ -139,15 +140,15 @@ public class ForkController {
 	            		}));
             		}
             	}
-            	
+
             	if (WALLET_SUBMENU.getItemCount() > 0)
             		WALLET_SUBMENU.addSeparator();
             	WALLET_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.walletAddColdWallet,	Ico.WALLET_COLD,	() -> addColdWallet(f)));
-            	
-	
+
+
 			}
 		});
-		
+
 		POPUP_MENU.add(ACTION_SUBMENU);
 		ACTION_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.actionStart, 		Ico.START, 	() -> new Thread(() -> ForkView.getSelected().forEach(Fork::start)).start()));
 		ACTION_SUBMENU.add(STAGGER_JMI);
@@ -158,12 +159,13 @@ public class ForkController {
 			ACTION_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.actionActivate,			Ico.POWER, 	() -> ForkStarter.activate(ForkView.getSelected())));
 			ACTION_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.actionActivateCustom,	Ico.POWER, 	ForkController::custom));
 		}
-		
+		EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.showPlotDirs, Ico.SHOW_PLOT_DIR, () -> ForkController.showPlotDirs()));
+
 		ACTION_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.actionEditStart,	Ico.EDIT_START, 	ForkStarter::edit));
 		ACTION_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.actionHide, 			Ico.HIDE,  			ForkController::removeSelected));
-	
+
 		POPUP_MENU.add(WALLET_SUBMENU);
-	
+
 		POPUP_MENU.add(EXPLORE_SUBMENU);
 			EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.viewLog, 	Ico.CLIPBOARD,  		() -> new ForkLogViewer(ForkView.getSelected())));
 			EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openConfig, 	Ico.CLIPBOARD,  		() -> ForkView.getSelected().forEach(f -> Util.openFile(f.configPath))));
@@ -173,11 +175,11 @@ public class ForkController {
 			} else {
 				EXPLORE_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.openTerminal, 		Ico.TERMINAL,  		() -> ForkController.openShell(SHELL.TERMINAL)));
 			}
-		
+
 		POPUP_MENU.add(COPY_SUBMENU);
 			COPY_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.copyAddress, 	Ico.CLIPBOARD,  ForkController::copyAddress));
 			COPY_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.copyCSV, 		Ico.CLIPBOARD,  ForkController::copyCSV));
-		
+
 		POPUP_MENU.add(TOOLS_SUBMENU);
 			TOOLS_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.ports, 	Ico.PORTS, ForkController::runPortChecker));
 			TOOLS_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.missing,Ico.QUESTION, () -> ForkFarmer.newFrame(I18n.ForkController.missingFrameTitle, Ico.QUESTION, new MissingForks())));
@@ -185,7 +187,7 @@ public class ForkController {
 			update.setToolTipText(I18n.ForkController.forceUpdateTipText);
 			TOOLS_SUBMENU.add(update);
 			TOOLS_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.plotCalc,Ico.EXPAND, () -> ForkFarmer.newFrame(I18n.ForkController.plotCalcFrameTitle, Ico.EXPAND, new PlotCalc()).setResizable(false)));
-			
+
 		POPUP_MENU.add(COMMUNITY_SUBMENU);
 			COMMUNITY_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.xchforks, 			Ico.XCHF,() -> Util.openLink("https://xchforks.com/")));
 			COMMUNITY_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.alltheblocks, 		Ico.ATB, () -> Util.openLink("https://alltheblocks.net/")));
@@ -200,7 +202,7 @@ public class ForkController {
 			SETUP_SUBMENU.add(new SwingEX.JMI(I18n.ForkController.copyPrivateKeyFromChia, 	Ico.PLUS,() -> new Thread(ForkController::copyPrivateKeysFromChia).start()));
 
 		POPUP_MENU.addSeparator();
-		
+
 		POPUP_MENU.add(new SwingEX.JMI(I18n.ForkController.addColdWallet,	Ico.SNOW,  	() -> ForkController.addColdWallet(null)));
 		POPUP_MENU.add(new SwingEX.JMI(I18n.ForkController.addFork,			Ico.PLUS,  	ForkController::addFork));
 		POPUP_MENU.add(new SwingEX.JMI(I18n.ForkController.refresh,	Ico.REFRESH,  	ForkController::refresh));
@@ -209,11 +211,11 @@ public class ForkController {
 		POPUP_MENU.addSeparator();
 		POPUP_MENU.add(new SwingEX.JMI(I18n.ForkController.debug,			Ico.BUG,		() -> ForkView.getSelected().forEach(Fork::showLastException)));
 		POPUP_MENU.add(new SwingEX.JMI(I18n.ForkController.ffLogs,		Ico.CLIPBOARD,	() -> ForkFarmer.showFrame(I18n.ForkController.ffLogsTitle, null, ForkFarmer.LOG.newFrameView())));
+		POPUP_MENU.add(new SwingEX.JMI("功能说明", Ico.HELP, () -> jump2HelpPage()));
 
-		
 		return POPUP_MENU;
 	}
-	
+
 	static private void multiWallet(List<Fork> sel, int i) {
 		sel.forEach(f -> {
 			if (i < f.walletList.size()) {
@@ -226,11 +228,11 @@ public class ForkController {
 			}
 		});
 	}
-	
+
 	static private void addFork() {
 		ManualAddView p = new ManualAddView();
 		if (ForkFarmer.showPopup(I18n.ForkController.addForktitle, p)) {
-			
+
 			Fork f;
 			try {
 				f = p.loadFork();
@@ -239,21 +241,21 @@ public class ForkController {
 			} catch (FileNotFoundException e) {
 				ForkFarmer.showMsg(I18n.ForkController.addForkErrortitle, I18n.ForkController.addForkErrorcontent);
 			}
-			
+
 		}
 	}
-	
+
 	static private void custom() {
 		List<Fork> fList = ForkView.getSelected();
-		
+
 		SwingEX.LIPanel scriptPanel = new SwingEX.LIPanel(I18n.ForkController.activateTitle);
 		if (true == ForkFarmer.showPopup(I18n.ForkController.activatePopupTitle, scriptPanel)) {
 			String script = scriptPanel.getText();
 			ForkStarter.custom(fList, script);
 		}
-		
+
 	}
-	
+
 	static private void addColdWallet(Fork f) {
 		JPanel cwPanel = new JPanel(new BorderLayout());
 		JTextPane jtp = new JTextPane();
@@ -261,10 +263,10 @@ public class ForkController {
 		jtp.setPreferredSize(new Dimension(500,200));
 		cwPanel.add(new JLabel(I18n.ForkController.addCodeWalletLabel), BorderLayout.PAGE_START);
 		cwPanel.add(JSP,BorderLayout.CENTER);
-		
+
 		if (ForkFarmer.showPopup(I18n.ForkController.addColdWalletTitle, cwPanel)) {
 			String[] addrArray = jtp.getText().split(System.lineSeparator());
-			
+
 			new Thread(() -> {
 				for (String addr : addrArray) {
 					addr = addr.toLowerCase();
@@ -282,17 +284,17 @@ public class ForkController {
 				Util.sleep(2000);
 				AllTheBlocks.updateColdForced();
 			}).start();
-			
+
 		}
 	}
-	
+
 	static private void copyAddress() {
 		String addrs = ForkView.getSelected().stream()
 				.map(f -> f.wallet.toString()).filter(Objects::nonNull)
 				.collect(Collectors.joining("\n"));
 		Util.copyToClip(addrs);
 	}
-	
+
 	static private void copyCSV() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Symbol,Balance,$,ETW\n");
@@ -302,10 +304,10 @@ public class ForkController {
 			sb.append(((Balance)(ForkView.MODEL.colList.get(ForkView.MODEL.getIndex("$")).getValue.apply(f))).amt +",");
 			sb.append(Util.toString(ForkView.MODEL.colList.get(ForkView.MODEL.getIndex("ETW")).getValue.apply(f)) + "\n");
 		}
-		
+
 		Util.copyToClip(sb.toString());
 	}
-	
+
 	static private void openShell(SHELL s) {
 		for (Fork f : ForkView.getSelected()) {
 			String path = f.exePath;
@@ -321,13 +323,13 @@ public class ForkController {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
+
 		}
 	}
-	
+
 	static private void setPassKey() {
 		List<Fork> LIST = ForkView.getSelected();
-		
+
 		JFileChooser jfc = new JFileChooser();
 		if (JFileChooser.APPROVE_OPTION == jfc.showOpenDialog(ForkFarmer.FRAME)) {
 			LIST.forEach(f -> {
@@ -338,45 +340,45 @@ public class ForkController {
 			});
 		}
 	}
-	
+
 	private static void runPortChecker() {
 		Fork.LIST.forEach(Fork::loadConfig);
 		ForkFarmer.newFrame(I18n.ForkController.portCheckerTitle, Ico.PORTS, new PortCheckerView());
 	}
-	
+
 	static private void refresh() {
 		ForkView.getSelected().forEach(f -> {
-			new Thread(() -> { 
+			new Thread(() -> {
 				f.loadVersion();
 				f.loadWallet();
 			}).start();
 		});
 	}
-	
+
 	static private void removeSelected() {
 		List<Fork> selList = ForkView.getSelected();
 		for (Fork f : selList) {
 			f.hidden = true;
 			SwingUtilities.invokeLater(() -> {
-				ForkView.MODEL.removeRow(f.getIndex().get());	
+				ForkView.MODEL.removeRow(f.getIndex().get());
 			});
-			
+
 		}
-		
+
 		ForkView.update();
 		MainGui.updateNumForks();
 	}
-	
+
 	static private void staggerStartDialog() {
 		String delay = JOptionPane.showInputDialog(ForkFarmer.FRAME,"Enter Start Interval: (Seconds)", "60");
-		
+
 		if (null == delay)
 			return;
 		int delayInt = Integer.parseInt(delay);
 
 		staggerStart(ForkView.getSelected(),delayInt);
 	}
-	
+
 	static public void staggerStart(List<Fork> list, int delayInt) {
 		new Thread(() -> {
 			list.stream().forEach(f -> {
@@ -384,14 +386,14 @@ public class ForkController {
 			});
 		}).start();
 	}
-	
+
 	static private void webUpdateForced() {
 		if (!javaOld()) {
 			XchForks.updatePricesForced();
 			AllTheBlocks.updateColdForced();
 		}
 	}
-	
+
 	public static void logReader() {
 		while(true) {
 			for (Fork f: Fork.FULL_LIST) {
@@ -401,10 +403,10 @@ public class ForkController {
 				}
 			}
 				Util.sleep(Settings.GUI.logReaderExoDelay);
-			
+
 		}
 	}
-	
+
 	public static boolean javaOld() {
 		int jversion = Util.getJavaVersion();
 		if (!warnJava && jversion < 11) {
@@ -415,28 +417,28 @@ public class ForkController {
 		}
 		return false;
 	}
-	
+
 	static private void webUpdate() {
 		if (javaOld() || !Settings.GUI.autoUpdate)
 			return;
-		
+
 		ForkFarmer.LOG.add("Running web update");
-		
+
 		XchForks.updatePrices();
 		AllTheBlocks.updateATB();
 		Github.getVersion(Fork.FULL_LIST);
-		
+
 		ForkFarmer.LOG.add("Done Running web update");
 	}
-	
+
 	public static void daemonReader() {
 		ExecutorService SVC = Executors.newFixedThreadPool(Settings.GUI.daemonReaderWorkers);
-		
+
 		try {
 			// initial load
 			SVC.submit(ForkController::webUpdate);
 			Fork.FULL_LIST.forEach(f -> SVC.submit(() -> f.startup()));
-				
+
 			// main GUI refresh loop
 			while(true) {
 				for (Fork f: Fork.FULL_LIST) {
@@ -445,7 +447,7 @@ public class ForkController {
 							f.loadFarmSummary();
 							f.loadWallet();
 							ForkView.update(f);
-						}); 
+						});
 					Util.blockUntilAvail(SVC);
 					Util.sleep(Settings.GUI.daemonReaderDelay);
 				}
@@ -592,6 +594,28 @@ public class ForkController {
 		}
 	}
 
-
-
+	private static void showPlotDirs() {
+		List<Fork> selectedForks = ForkView.getSelected();
+		if (selectedForks.size() > 0) {
+			Fork showFork = selectedForks.get(0);
+			List<String> plotDirList = showFork.getPlotDirsFromConfig();
+			String showMsg = String.format(I18n.ForkController.showPlotDirsMsgContent, showFork.name, plotDirList.size()) + "\n";
+			int index = 0;
+			for (String dir : plotDirList) {
+				File file = new File(dir);
+				String tip = file.exists() ? "" : I18n.ForkController.plotDirNotExistsTip;
+				showMsg += (++index) + ". " + dir + tip + "\n";
+			}
+			ForkFarmer.showMsg(String.format(I18n.ForkController.showPlotDirsMsgTitle, showFork.name), showMsg);
+		}
+	}
+	public static void jump2HelpPage() {
+		Desktop desktop = Desktop.getDesktop();
+		try {
+			desktop.browse(new URI("https://www.c4dig.cn/page/2618.html?from=ff2.6"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			ForkFarmer.showMsg("获取帮助", "请访问：https://www.c4dig.cn/page/2618.html 获取帮助信息。");
+		}
+	}
 }
